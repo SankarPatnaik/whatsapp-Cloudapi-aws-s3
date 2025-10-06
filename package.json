@@ -4,7 +4,7 @@
   "description": "Conecct to aws s3 storage from whatsapp cloud api",
   "main": "index.js",
   "scripts": {
-    "test": "console.log(\"Hello world\");",
+    "test": "node -e \"console.log('No automated tests configured');\"",
     "start": "nodemon index.js"
   },
   "author": "shreyas sreedhar",
@@ -15,9 +15,7 @@
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.2",
-    "node-fetch": "^3.3.2",
-    "nodemon": "^3.0.2",
-    "sharp": "^0.32.6",
-    "stream": "^0.0.2"
+    "mime-types": "^2.1.35",
+    "nodemon": "^3.0.2"
   }
 }
