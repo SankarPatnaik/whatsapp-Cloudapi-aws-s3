@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const config = require('./src/config');
 const logger = require('./src/utils/logger');
 const webhookRouter = require('./src/routes/webhook');
+const telephonyRouter = require('./src/routes/telephony');
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/webhook', webhookRouter);
+app.use('/telephony', telephonyRouter);
 
 app.use((err, _req, res, _next) => {
   logger.error('Unhandled error occurred:', err);
