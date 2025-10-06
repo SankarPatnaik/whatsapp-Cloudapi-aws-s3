@@ -49,6 +49,7 @@ This project provides a production-ready Express application that listens to Wha
    TELEPHONY_BASE_URL=https://telephony-provider.example.com/api
    TELEPHONY_API_KEY=your_telephony_provider_api_key
    TELEPHONY_DEFAULT_CALLER_ID=+15551230000
+   # Example: set an Indian Airtel caller ID using E.164 format like +919812345678
    TELEPHONY_SMS_SENDER_ID=MyBrand
    TELEPHONY_SIM_SLOT=sim1
    TELEPHONY_STATUS_WEBHOOK_URL=https://your-domain.com/telephony/status
@@ -106,6 +107,8 @@ Content-Type: application/json
   }
 }
 ```
+
+> 🇮🇳 To test with an Indian Airtel number, update `"to"` to a `+91` number such as `+919812345678` while keeping the E.164 format.
 
 ```http
 POST /telephony/sms
