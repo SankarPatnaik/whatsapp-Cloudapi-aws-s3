@@ -10,6 +10,7 @@ This project provides a production-ready Express application that listens to Wha
 - ✅ Structured Amazon S3 uploads (`<wa_id>/<media_type>/<filename>`).
 - ✅ Centralized configuration with helpful logging to detect misconfiguration early.
 - ✅ Health endpoint (`/health`) to simplify uptime monitoring.
+- ✅ Optional telephony & engagement module for web-to-mobile calls, call recordings, one-click SMS, and push notifications.
 
 ## Prerequisites
 
@@ -43,6 +44,21 @@ This project provides a production-ready Express application that listens to Wha
    AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
    # Optional: store everything under a base prefix such as "production/"
    # AWS_S3_BASE_PREFIX=production
+
+   # Telephony & Engagement (optional)
+   TELEPHONY_BASE_URL=https://telephony-provider.example.com/api
+   TELEPHONY_API_KEY=your_telephony_provider_api_key
+   TELEPHONY_DEFAULT_CALLER_ID=+15551230000
+   TELEPHONY_SMS_SENDER_ID=MyBrand
+   TELEPHONY_SIM_SLOT=sim1
+   TELEPHONY_STATUS_WEBHOOK_URL=https://your-domain.com/telephony/status
+   TELEPHONY_RECORDING_WEBHOOK_URL=https://your-domain.com/telephony/recordings
+   TELEPHONY_TIMEOUT=10000
+   NOTIFICATION_BASE_URL=https://notifications-provider.example.com/api
+   NOTIFICATION_API_KEY=your_push_provider_api_key
+   NOTIFICATION_DEFAULT_CHANNEL=general
+   # Optional: override the push endpoint relative to the provider base URL
+   # NOTIFICATION_PUSH_ENDPOINT=/custom/push
    ```
 
    > The application still supports the previous variable names (`MYTOKEN`, `S3_AccKEY`, `S3_SecAccKEY`) so existing deployments continue to work.
@@ -54,6 +70,69 @@ This project provides a production-ready Express application that listens to Wha
    ```
 
 4. Configure your WhatsApp Cloud API webhook URL in Meta Developer Console to `https://<your-domain>/webhook` and supply the same `VERIFY_TOKEN` value defined in your `.env` file.
+
+## Telephony & Engagement Module
+
+The `telephony` router is an optional, stand-alone component inspired by TeleCRM's autodialer capabilities. When configured, it enables your web application to orchestrate communications that ultimately route through a mobile SIM gateway or CPaaS platform while keeping implementation details out of the UI layer.
+
+### Capabilities
+
+- **Web-to-mobile voice calls:** Trigger outbound calls from the browser to any phone number while leveraging your connected SIM or virtual number. The optional `record` flag enables call recordings when the underlying device or provider supports them.
+- **1-click SMS:** Fire off templated or ad-hoc text messages without leaving the workflow your reps already use.
+- **Push notifications:** Deliver real-time updates to mobile or desktop clients using your preferred notification provider.
+
+When the telephony provider credentials are absent, the module automatically switches to **simulation mode** so product teams can continue iterating without live telephony infrastructure. Responses include a `simulated: true` flag along with the payload that would have been sent to the provider.
+
+### REST Endpoints
+
+| Method | Path                      | Description |
+| ------ | ------------------------- | ----------- |
+| GET    | `/telephony/capabilities` | Returns the current module configuration, including simulation mode status and whether recording webhooks are configured. |
+| POST   | `/telephony/call`         | Initiates a voice call. Body accepts `to`, optional `from`, `record`, and `metadata`. |
+| POST   | `/telephony/sms`          | Sends a one-click SMS. Body accepts `to`, `message`, optional `senderId`, and `metadata`. |
+| POST   | `/telephony/push`         | Sends a push notification. Body accepts `to`, `title`, `body`, optional `channel`, and `data`. |
+
+### Example Payloads
+
+```http
+POST /telephony/call
+Content-Type: application/json
+
+{
+  "to": "+15557654321",
+  "record": true,
+  "metadata": {
+    "crmLeadId": "lead-123"
+  }
+}
+```
+
+```http
+POST /telephony/sms
+Content-Type: application/json
+
+{
+  "to": "+15557654321",
+  "message": "Hi Tina, your order is ready for pickup!"
+}
+```
+
+```http
+POST /telephony/push
+Content-Type: application/json
+
+{
+  "to": "device-token-abc",
+  "title": "New lead assigned",
+  "body": "Open the TeleCRM dashboard to review the details.",
+  "data": {
+    "leadId": "lead-123",
+    "priority": "high"
+  }
+}
+```
+
+> 💡 Call the `/telephony/capabilities` endpoint from your UI to toggle functionality automatically when the backend is running in simulation mode.
 
 ## Integration Guide
 
